@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace VirtualClients_API.Models
 {
@@ -10,9 +11,10 @@ namespace VirtualClients_API.Models
         public int Id { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
-        public int Status { get; set; }
+        public int Estatus { get; set; }
 
-        [ForeignKey(nameof(Status))]
+        [JsonIgnore]
+        [ForeignKey(nameof(Estatus))]
         public virtual Condicion Condicion { get; set; }
     }
 }

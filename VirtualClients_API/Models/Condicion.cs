@@ -8,7 +8,7 @@ namespace VirtualClients_API.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string Status { get; set; }
+        public string Estatus { get; set; }
 
         public virtual ICollection<Cliente> Clientes { get; set; }
     }
