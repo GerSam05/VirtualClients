@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using VirtualClients_API.ContextDb;
 using VirtualClients_API.Services;
 
@@ -15,6 +16,12 @@ builder.Services.AddSqlServer<AppDbContext>(builder.Configuration.GetConnectionS
 
 //Service
 builder.Services.AddScoped<ClienteService>();
+
+//ModelState
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 var app = builder.Build();
 

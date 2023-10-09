@@ -24,6 +24,8 @@ namespace VirtualClients_API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<Cliente>>> GetAll()
         {
             var result = await _service.ListarClientes();
@@ -35,6 +37,9 @@ namespace VirtualClients_API.Controllers
         }
         
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Cliente>> Get(int id)
         {
             var result = await _service.GetById(id);
@@ -50,6 +55,8 @@ namespace VirtualClients_API.Controllers
         }
         
         [HttpGet("general")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<ClienteTotal>>> GetTotal()
         {
             var result = await _service.GetClientesTotal();
@@ -61,8 +68,16 @@ namespace VirtualClients_API.Controllers
         }
         
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> Post (ClienteDtoCreate clienteDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var result = await _service.Guardar(clienteDto);
 
             if (result.IsExitoso == true)
@@ -77,8 +92,16 @@ namespace VirtualClients_API.Controllers
         }
         
         [HttpPut("update")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> Put(ClienteDtoUpdate clienteDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var result = await _service.Editar(clienteDto);
 
             if (result.IsExitoso == true)
@@ -93,6 +116,9 @@ namespace VirtualClients_API.Controllers
         }
         
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> Delete(int id)
         {
             var result = await _service.Borrar(id);
