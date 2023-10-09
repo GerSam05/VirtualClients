@@ -1,4 +1,5 @@
 using VirtualClients_API.ContextDb;
+using VirtualClients_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,9 @@ builder.Services.AddSwaggerGen();
 
 //Context
 builder.Services.AddSqlServer<AppDbContext>(builder.Configuration.GetConnectionString("DbContext"));
+
+//Service
+builder.Services.AddScoped<ClienteService>();
 
 var app = builder.Build();
 
