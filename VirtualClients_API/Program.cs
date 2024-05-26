@@ -11,11 +11,25 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//EnableCors
+var myCorsRules = "CorsRules";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myCorsRules, builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+//LowercaseUrls
+builder.Services.AddRouting(routing => routing.LowercaseUrls = true);
+
 //Context
 builder.Services.AddSqlServer<AppDbContext>(builder.Configuration.GetConnectionString("DbContext"));
 
 //Service
 builder.Services.AddScoped<ClienteService>();
+builder.Services.AddScoped<CondicionService>();
 
 //ModelState
 builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -31,6 +45,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(myCorsRules);
 
 app.UseHttpsRedirection();
 

@@ -1,49 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Net;
 using VirtualClients_API.ContextDb;
-using VirtualClients_API.Models;
-using VirtualClients_API.Models.ClasesEspeciales;
 using VirtualClients_API.Models.Dtos;
+using VirtualClients_API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace VirtualClients_API.Services
 {
-    public class ClienteService
+    public class CondicionService
     {
         private readonly AppDbContext _context;
         protected readonly APIResponse _response;
-        public ClienteService(AppDbContext context)
+        public CondicionService(AppDbContext context)
         {
             _context = context;
             _response = new();
         }
 
-        public async Task<APIResponse> ListarClientes()
+        public async Task<APIResponse> ListarCondicion()
         {
             try
             {
-                var lista = await _context.Clientes.FromSqlInterpolated($"Exec sp_ListarClientes").ToListAsync();
+                var lista = await _context.Condicions.FromSqlInterpolated($"Exec sp_ListarCondicion").ToListAsync();
                 _response.Result = lista;
-                _response.StatusCode = HttpStatusCode.OK;
-                return _response;
-            }
-            catch (Exception ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.Messages = new List<string> { ex.Message.ToString() };
-            }
-            return _response;
-        }
-
-        public async Task<APIResponse> GetClientesTable()
-        {
-            try
-            {
-                var result = await _context.Set<ClienteTotal>().ToListAsync();
-                _response.Result = result;
                 _response.StatusCode = HttpStatusCode.OK;
                 return _response;
             }
@@ -60,17 +41,16 @@ namespace VirtualClients_API.Services
         {
             try
             {
-                var clientes= await _context.Clientes.FromSqlInterpolated($"Exec sp_ObtenerCliente @id={id}").ToListAsync();
-                var cliente = clientes.FirstOrDefault();
+                var condicion = await _context.Condicions.FromSqlInterpolated($"Exec sp_ObtenerCondicion @id={id}").ToListAsync();
 
-                if (cliente == null)
+                if (condicion.Count == 0)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.NotFound;
                     return _response;
                 }
                 _response.StatusCode = HttpStatusCode.OK;
-                _response.Result = cliente;
+                _response.Result = condicion;
                 return _response;
             }
             catch (Exception ex)
@@ -82,49 +62,20 @@ namespace VirtualClients_API.Services
             return _response;
         }
 
-        public async Task<APIResponse> GetTableById(int id)
-        {
-            try
-            {
-                var clientes = await _context.Set<ClienteTotal>().ToListAsync();
-                var cliente = clientes.FirstOrDefault(i => i.Id == id);
-
-                if (cliente == null)
-                {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = HttpStatusCode.NotFound;
-                    return _response;
-                }
-                _response.StatusCode = HttpStatusCode.OK;
-                _response.Result = cliente;
-                return _response;
-            }
-            catch (Exception ex)
-            {
-                _response.IsSuccess = false;
-                _response.StatusCode = HttpStatusCode.InternalServerError;
-                _response.Messages = new List<string> { ex.Message.ToString() };
-            }
-            return _response;
-        }
-
-
-
-        public async Task<APIResponse> Guardar(ClienteDtoCreate clienteDto)
+        public async Task<APIResponse> Guardar(CondicionDtoCreate condicionDto)
         {
             try
             {
                 var parametroId = new SqlParameter("@id", SqlDbType.Int);
                 parametroId.Direction = ParameterDirection.Output;
 
-                await _context.Database.ExecuteSqlInterpolatedAsync($@"Exec sp_GuardarCliente
-                                        @nombre={clienteDto.Nombre}, @apellido={clienteDto.Apellido},
-                                        @estatus={clienteDto.Estatus}, @id={parametroId} Output");
+                await _context.Database.ExecuteSqlInterpolatedAsync($@"Exec sp_GuardarCondicion
+                                        @estatus={condicionDto.Estatus}, @id={parametroId} Output");
 
                 var id = (int)parametroId.Value;
-                if ( id > 0 )
+                if (id > 0)
                 {
-                    _response.Result = clienteDto;
+                    _response.Result = condicionDto;
                     _response.StatusCode = HttpStatusCode.Created;
                     return _response;
                 }
@@ -144,13 +95,12 @@ namespace VirtualClients_API.Services
             return _response;
         }
 
-        public async Task<APIResponse> Editar(ClienteDtoUpdate clienteDto)
+        public async Task<APIResponse> Editar(CondicionDtoUpdate condicionDto)
         {
             try
             {
-                var result = await _context.Database.ExecuteSqlInterpolatedAsync($@"Exec sp_ActualizarCliente
-                                        @nombre={clienteDto.Nombre}, @apellido={clienteDto.Apellido},
-                                        @estatus={clienteDto.Estatus}, @id={clienteDto.Id}");
+                var result = await _context.Database.ExecuteSqlInterpolatedAsync($@"Exec sp_ActualizarCondicion
+                                        @estatus={condicionDto.Estatus}, @id={condicionDto.Id}");
                 if (result > 0)
                 {
                     _response.StatusCode = HttpStatusCode.NoContent;
@@ -177,8 +127,8 @@ namespace VirtualClients_API.Services
         {
             try
             {
-                var result = await _context.Database.ExecuteSqlInterpolatedAsync($@"Exec sp_EliminarCliente @id={id}");
-                
+                var result = await _context.Database.ExecuteSqlInterpolatedAsync($@"Exec sp_EliminarCondicion @id={id}");
+
                 if (result > 0)
                 {
                     _response.StatusCode = HttpStatusCode.NoContent;
